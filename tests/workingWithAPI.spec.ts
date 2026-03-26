@@ -64,3 +64,38 @@ test('Delete an article', async ({page, request}) => {
   await expect(page.locator('app-article-list h1').first()).not.toContainText('Creation of new article')
 
 })
+
+test('Create an article', async ({page, request}) =>{
+
+  await page.getByRole('link', {name: ' New Article'}).click()
+  await page.getByPlaceholder('Article Title').fill('Title of the new article to create')
+  await page.getByPlaceholder('What\'s this article about?').fill('Is about create one article with playwright')
+  await page.getByPlaceholder('Write your article (in markdown)').fill('Playwright is awesome and easy to learn')
+  await page.getByPlaceholder('Enter tags').fill('firstTag')
+  await page.getByRole('button', {name: 'Publish Article'}).click()
+
+  const articleResponse = await page.waitForResponse('https://conduit-api.bondaracademy.com/api/articles/')
+  const articleResponseBody = await articleResponse.json()
+  const slugId = articleResponseBody.article.slug
+
+  await expect(page.locator('app-article-page h1')).toContainText('Title of the new article to create')
+  await page.getByText('Home').click()
+  // await page.getByText('Global Feed').click()
+  
+  await expect(page.locator('app-article-list h1').first()).toContainText('Title of the new article to create')
+
+  const response = await request.post('https://conduit-api.bondaracademy.com/api/users/login', {
+    data: {"user":{"email":"juan@jose.es","password":"contrasena1"}}
+  })
+
+  const responseBody = await response.json()
+  const accessToken = responseBody.user.token
+
+  const deleteArticleResponse = await request.delete(`https://conduit-api.bondaracademy.com/api/articles/${slugId}`,{
+    headers: { 
+      Authorization: `Token ${accessToken}`
+    } 
+  })
+
+  expect(deleteArticleResponse.status()).toEqual(204)
+})
