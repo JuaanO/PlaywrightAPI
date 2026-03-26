@@ -9,24 +9,58 @@ test.beforeEach(async ({page}) => {
       body: JSON.stringify(tags) })
   })
 
+  await page.goto('https://conduit.bondaracademy.com/');
+  await page.getByText('Sign In').click()
+  await page.getByRole('textbox', {name: 'Email'}).fill('juan@jose.es')
+  await page.getByRole('textbox', {name: 'Password'}).fill('contrasena1')
+  await page.getByRole('button', {name: 'Sign In'}).click()
+})
+
+test('has title', async ({ page }) => {
+  
   await page.route('*/**/api/articles*', async route => {
     const response = await route.fetch()
     const responseBody = await response.json()
-    responseBody.articles[0].title = 'First title replacement test'
-    responseBody.articles[0].description = 'The new article description'
+    responseBody.articles[0].title = 'First title replacement MOCK test'
+    responseBody.articles[0].description = 'The new article MOCK description'
 
     await route.fulfill({
       body: JSON.stringify(responseBody)
     })
   })
-  
-  await page.goto('https://conduit.bondaracademy.com/');
-})
 
-test('has title', async ({ page }) => {
-  
+  await page.getByText('Global Feed').click()
   await expect(page.locator('.navbar-brand')).toHaveText('conduit')
-  await expect(page.locator('app-article-list h1').first()).toHaveText('First title replacement test')
-  await expect(page.locator('app-article-list p').first()).toContainText('The new article description')
+  await expect(page.locator('app-article-list h1').first()).toHaveText('First title replacement MOCK test')
+  await expect(page.locator('app-article-list p').first()).toContainText('The new article MOCK description')
 
 });
+
+
+test('Delete an article', async ({page, request}) => {
+  const response = await request.post('https://conduit-api.bondaracademy.com/api/users/login', {
+    data: {"user":{"email":"juan@jose.es","password":"contrasena1"}}
+  })
+
+  const responseBody = await response.json()
+  const accessToken = responseBody.user.token
+
+  const articleResponse = await request.post('https://conduit-api.bondaracademy.com/api/articles/', {
+    data: {
+      "article":{"title":"Creation of new article","description":"test new article","body":"this is a test for a new article","tagList":["newarticle"]}
+    }, 
+    headers: { 
+      Authorization: `Token ${accessToken}`
+    }
+  }
+)
+  expect(articleResponse.status()).toEqual(201)
+
+  await page.getByText('Global Feed').click()
+  await page.getByText('Creation of new article').click()
+  await page.getByRole('button', {name: 'Delete Article'}).first().click()
+  await page.getByText('Global Feed').click()
+  
+  await expect(page.locator('app-article-list h1').first()).not.toContainText('Creation of new article')
+
+})
