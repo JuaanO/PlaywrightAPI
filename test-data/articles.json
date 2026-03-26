@@ -1,0 +1,27 @@
+{
+    "articles": [
+        {
+            "slug": "Discover-Bondar-Academy:-Your-Gateway-to-Efficient-Learning-1",
+            "title": "test of interseption of article",
+            "description": "New description.",
+            "body": "test ",
+            "tagList": [
+                "qa career",
+                "Bondar Academy",
+                "QA Skills",
+                "Value-Focused"
+            ],
+            "createdAt": "2024-01-27T21:52:32.682Z",
+            "updatedAt": "2024-01-27T21:52:32.682Z",
+            "favorited": false,
+            "favoritesCount": 1816,
+            "author": {
+                "username": "Artem Bondar",
+                "bio": null,
+                "image": "https://storage.googleapis.com/bondar-academy-visuals/Android.png",
+                "following": false
+            }
+        }  
+    ],
+    "articlesCount": 10
+}
