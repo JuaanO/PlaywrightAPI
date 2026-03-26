@@ -10,10 +10,6 @@ test.beforeEach(async ({page}) => {
   })
 
   await page.goto('https://conduit.bondaracademy.com/');
-  await page.getByText('Sign In').click()
-  await page.getByRole('textbox', {name: 'Email'}).fill('juan@jose.es')
-  await page.getByRole('textbox', {name: 'Password'}).fill('contrasena1')
-  await page.getByRole('button', {name: 'Sign In'}).click()
 })
 
 test('has title', async ({ page }) => {
