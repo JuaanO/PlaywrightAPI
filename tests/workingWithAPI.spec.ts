@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
 import tags from '../test-data/tags.json'
-import articles from '../test-data/articles.json'
 
 test.beforeEach(async ({page}) => {
 
@@ -34,19 +33,10 @@ test('has title', async ({ page }) => {
 
 
 test('Delete an article', async ({page, request}) => {
-  const response = await request.post('https://conduit-api.bondaracademy.com/api/users/login', {
-    data: {"user":{"email":"juan@jose.es","password":"contrasena1"}}
-  })
-
-  const responseBody = await response.json()
-  const accessToken = responseBody.user.token
 
   const articleResponse = await request.post('https://conduit-api.bondaracademy.com/api/articles/', {
     data: {
       "article":{"title":"Creation of new article","description":"test new article","body":"this is a test for a new article","tagList":["newarticle"]}
-    }, 
-    headers: { 
-      Authorization: `Token ${accessToken}`
     }
   }
 )
@@ -76,22 +66,11 @@ test('Create an article', async ({page, request}) =>{
 
   await expect(page.locator('app-article-page h1')).toContainText('Title of the new article to create')
   await page.getByText('Home').click()
-  // await page.getByText('Global Feed').click()
+  await page.getByText('Global Feed').click()
   
   await expect(page.locator('app-article-list h1').first()).toContainText('Title of the new article to create')
 
-  const response = await request.post('https://conduit-api.bondaracademy.com/api/users/login', {
-    data: {"user":{"email":"juan@jose.es","password":"contrasena1"}}
-  })
-
-  const responseBody = await response.json()
-  const accessToken = responseBody.user.token
-
-  const deleteArticleResponse = await request.delete(`https://conduit-api.bondaracademy.com/api/articles/${slugId}`,{
-    headers: { 
-      Authorization: `Token ${accessToken}`
-    } 
-  })
+  const deleteArticleResponse = await request.delete(`https://conduit-api.bondaracademy.com/api/articles/${slugId}`)
 
   expect(deleteArticleResponse.status()).toEqual(204)
 })
